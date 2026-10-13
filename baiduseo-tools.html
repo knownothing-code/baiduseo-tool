@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>百度SEO文章转化器 v3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#dbeafe 0%,#e0e7ff 40%,#fbcfe8 100%);
+  background-attachment:fixed;
+  padding:32px 16px 64px;
+  color:#1e293b;
+}
+.wrap{max-width:920px;margin:0 auto;}
+
+/* ===== 头部 ===== */
+.hero{text-align:center;margin-bottom:28px;}
+.hero-badge{
+  display:inline-block;font-size:12px;letter-spacing:.15em;
+  padding:6px 16px;border-radius:999px;
+  background:rgba(255,255,255,.55);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.8);
+  color:#6366f1;margin-bottom:14px;
+}
+.hero h1{
+  font-size:32px;font-weight:700;letter-spacing:.02em;
+  background:linear-gradient(120deg,#2563eb 10%,#7c3aed 50%,#ec4899 90%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+}
+.hero p{font-size:14px;color:#64748b;margin-top:8px;}
+.hero .algos{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.hero .algos span{
+  font-size:12px;padding:3px 12px;border-radius:999px;
+  background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.7);color:#475569;
+}
+
+/* ===== 卡片 ===== */
+.card{
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.9);
+  border-radius:20px;
+  box-shadow:0 8px 32px rgba(99,102,241,.10),0 2px 8px rgba(236,72,153,.06);
+  padding:24px;margin-bottom:20px;
+}
+.card-title{
+  font-size:15px;font-weight:600;color:#334155;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title::before{
+  content:'';width:4px;height:16px;border-radius:4px;
+  background:linear-gradient(180deg,#60a5fa,#f472b6);
+}
+
+/* ===== 输入 ===== */
+.field{margin-bottom:14px;}
+.field label{
+  display:block;font-size:13px;font-weight:500;color:#475569;margin-bottom:6px;
+}
+.field label small{font-weight:400;color:#94a3b8;margin-left:6px;}
+.field input,.field textarea{
+  width:100%;border:1.5px solid #e2e8f0;border-radius:12px;
+  padding:10px 14px;font-size:14px;line-height:22px;color:#1e293b;
+  background:rgba(255,255,255,.85);outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.field textarea{min-height:180px;resize:vertical;line-height:24px;}
+.field input:focus,.field textarea:focus{
+  border-color:#a5b4fc;
+  box-shadow:0 0 0 4px rgba(165,180,252,.18);
+}
+
+/* ===== 按钮 ===== */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+.btn{
+  border:none;border-radius:12px;padding:10px 22px;font-size:14px;font-weight:500;
+  cursor:pointer;transition:transform .15s,box-shadow .2s,opacity .2s;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{
+  color:#fff;
+  background:linear-gradient(120deg,#3b82f6,#8b5cf6 55%,#ec4899);
+  box-shadow:0 4px 16px rgba(139,92,246,.35);
+}
+.btn-primary:hover{box-shadow:0 6px 24px rgba(139,92,246,.5);transform:translateY(-1px);}
+.btn-ghost{
+  background:rgba(255,255,255,.8);color:#475569;
+  border:1.5px solid #e2e8f0;
+}
+.btn-ghost:hover{border-color:#c7d2fe;color:#4f46e5;}
+.hidden{display:none;}
+
+/* ===== 评分区 ===== */
+.score-row{display:flex;align-items:center;gap:24px;margin-bottom:18px;flex-wrap:wrap;}
+.score-ring{
+  width:96px;height:96px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;position:relative;
+  background:conic-gradient(from 180deg,#60a5fa,#a78bfa,#f472b6,#60a5fa);
+  padding:6px;
+}
+.score-ring-inner{
+  width:100%;height:100%;border-radius:50%;background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.score-num{font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;
+  background:linear-gradient(120deg,#2563eb,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.score-max{font-size:11px;color:#94a3b8;margin-top:3px;}
+.score-bar-wrap{flex:1;min-width:200px;}
+.score-bar{height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden;}
+.score-fill{
+  height:100%;border-radius:999px;width:0;
+  background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);
+  transition:width .6s cubic-bezier(.2,.8,.4,1);
+}
+.score-comment{font-size:13px;color:#64748b;margin-top:8px;}
+
+/* ===== 规则列表 ===== */
+.rule-list{display:flex;flex-direction:column;gap:10px;}
+.rule-item{
+  display:flex;gap:12px;align-items:flex-start;
+  background:rgba(255,255,255,.65);border:1px solid rgba(226,232,240,.9);
+  border-radius:14px;padding:12px 14px;
+  transition:transform .15s;
+}
+.rule-item:hover{transform:translateX(3px);}
+.chip{
+  display:inline-block;font-size:12px;font-weight:500;
+  padding:3px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0;margin-top:1px;
+}
+.chip-ok{color:#059669;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);}
+.chip-warn{color:#d97706;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);}
+.chip-fail{color:#dc2626;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.22);}
+.rule-name{font-size:14px;font-weight:600;color:#334155;}
+.rule-desc{font-size:12.5px;color:#94a3b8;margin-top:3px;line-height:19px;}
+.rule-algo{
+  font-size:11px;color:#818cf8;background:rgba(129,140,248,.10);
+  border-radius:6px;padding:2px 8px;white-space:nowrap;flex-shrink:0;margin-top:2px;
+}
+
+/* ===== 输出 ===== */
+.out-block{
+  background:rgba(255,255,255,.65);border:1px solid rgba(226,232,240,.9);
+  border-radius:14px;padding:14px 16px;margin-bottom:12px;
+}
+.out-block h4{font-size:14px;font-weight:600;color:#334155;margin-bottom:8px;}
+.out-block textarea{
+  width:100%;border:none;background:transparent;color:#334155;
+  font-size:14px;line-height:23px;min-height:56px;resize:vertical;outline:none;
+}
+.out-block .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:22px;}
+.hint{font-size:12px;color:#94a3b8;margin-top:6px;line-height:19px;}
+
+/* ===== 提示条 ===== */
+.notice{
+  font-size:12.5px;color:#64748b;line-height:20px;
+  background:linear-gradient(120deg,rgba(191,219,254,.35),rgba(251,207,232,.35));
+  border:1px dashed rgba(148,163,184,.5);
+  border-radius:12px;padding:10px 14px;margin-bottom:16px;
+}
+
+footer{text-align:center;font-size:12px;color:#94a3b8;margin-top:8px;}
+
+@media (max-width:560px){
+  .hero h1{font-size:24px;}
+  .card{padding:18px;}
+  .score-row{gap:14px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-badge">SEO CONTENT OPTIMIZER</div>
+    <h1>百度SEO文章转化器</h1>
+    <p>规则库 v2026.10 · 粘贴文章，一键检测并生成合规优化稿</p>
+    <div class="algos">
+      <span>清风 4.0</span><span>飓风 4.0</span><span>细雨 3.0</span><span>劲风</span><span>极光</span><span>冰桶 5.0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="notice">💡 复测技巧：关键词可带空格（自动忽略）；把优化稿<b>整篇</b>粘进正文框、标题框留空，会自动识别首行标题；支持「## 」和「一、二、三…」两种小标题格式。</div>
+
+    <div class="card-title">文章输入</div>
+    <div class="field">
+      <label>核心关键词 <small>空格会被自动忽略</small></label>
+      <input id="kw" type="text" placeholder="如：BTK抑制剂 / 家用跑步机选购">
+    </div>
+    <div class="field">
+      <label>文章标题 <small>留空则自动取正文首行 # 标题</small></label>
+      <input id="atitle" type="text" placeholder="≤30个汉字">
+    </div>
+    <div class="field">
+      <label>文章正文</label>
+      <textarea id="abody" placeholder="粘贴或输入文章正文…"></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnCheck">开始检测</button>
+      <button class="btn btn-ghost hidden" id="btnFix">一键生成优化稿</button>
+      <button class="btn btn-ghost hidden" id="btnCopy">复制优化稿</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="reportCard">
+    <div class="card-title">检测报告</div>
+    <div class="score-row">
+      <div class="score-ring"><div class="score-ring-inner">
+        <div class="score-num" id="scoreNum">0</div>
+        <div class="score-max">/ 100</div>
+      </div></div>
+      <div class="score-bar-wrap">
+        <div class="score-bar"><div class="score-fill" id="scoreFill"></div></div>
+        <div class="score-comment" id="scoreComment"></div>
+      </div>
+    </div>
+    <div class="rule-list" id="ruleList"></div>
+  </div>
+
+  <div class="card hidden" id="outputCard">
+    <div class="card-title">优化输出</div>
+    <div class="out-block"><h4>优化后标题</h4><textarea id="outTitle" readonly></textarea></div>
+    <div class="out-block"><h4>Meta description（≤120字）</h4><textarea id="outDesc" readonly></textarea></div>
+    <div class="out-block"><h4>优化稿全文 <small style="color:#94a3b8;font-weight:400">（整篇粘回正文框可直接复测）</small></h4><textarea id="outBody" class="mono" style="min-height:220px" readonly></textarea><div class="hint" id="fixHints"></div></div>
+  </div>
+
+  <footer>百度SEO文章转化器 v3 · 规则库 2026.10</footer>
+</div>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var state={},RULES=[];
+
+function countChars(s){return (s.match(/[\u4e00-\u9fff]|[a-zA-Z0-9]/g)||[]).length}
+
+function analyze(){
+  RULES=[];
+  var kw=$('kw').value.replace(/\s+/g,'').replace(/　/g,'');
+  var title=$('atitle').value.trim();
+  var body=$('abody').value;
+  var score=0;
+
+  if(!title){
+    var m=body.match(/^\s*#\s+(.+)$/m);
+    if(m){title=m[1].trim();}
+  }
+
+  var titleLen=[...title].length;
+  var bodyChars=countChars(body);
+  var kwCount=0,idx=-1;
+  if(kw){var pos=0;while((idx=body.indexOf(kw,pos))!==-1){kwCount++;pos=idx+kw.length}}
+  var density=bodyChars?+(kwCount/bodyChars*100).toFixed(2):0;
+
+  if(!title){RULES.push({s:'fail',n:'标题为空',d:'缺少标题无法通过清风算法对标题规范的校验。',a:'清风算法'})}
+  else if(titleLen>30){RULES.push({s:'fail',n:'标题超长（'+titleLen+'字）',d:'百度建议标题≤30个汉字，超长在移动端被截断且易被判定堆砌。',a:'清风算法'})}
+  else{RULES.push({s:'ok',n:'标题长度合规（'+titleLen+'字）',d:'≤30字，移动端展示完整。',a:'清风算法'});score+=10}
+
+  if(title&&kw){if(title.indexOf(kw)!==-1){RULES.push({s:'ok',n:'标题包含核心关键词',d:'标题出现关键词有助于排名匹配。',a:'清风算法'});score+=10}
+    else{RULES.push({s:'warn',n:'标题未包含核心关键词',d:'建议将关键词自然融入标题前部，避免生硬堆砌。',a:'清风算法'})}}
+
+  var stuffed=kw&&title.split(kw).length-1>=2;
+  var rep=/(官网|最好|第一|顶级|百分百|最优)/.test(title);
+  var sym=/[!$%^&*<>|【】]/.test(title);
+  if(stuffed){RULES.push({s:'fail',n:'标题关键词堆砌',d:'同一关键词在标题重复≥2次，命中清风/细雨算法重点打击行为。',a:'清风·细雨'})}
+  else if(rep){RULES.push({s:'warn',n:'标题含绝对化或「官网」类表述',d:'「最好/第一/官网」等表述在细雨算法下易被判定标题作弊或误导。',a:'细雨算法'})}
+  else if(sym){RULES.push({s:'warn',n:'标题含特殊符号',d:'标题穿插特殊符号属于细雨算法明确打击的标题作弊行为。',a:'细雨算法'})}
+  else{RULES.push({s:'ok',n:'标题无堆砌/无违规表述',d:'未检出堆砌、极限词与特殊符号。',a:'清风·细雨'});score+=10}
+
+  if(!kw){RULES.push({s:'warn',n:'未设置关键词，跳过密度检测',d:'',a:''})}
+  else if(density<1){RULES.push({s:'fail',n:'关键词密度过低（'+density+'%）',d:'正文几乎未覆盖核心词。若已重写仍偏低，需补充围绕该词展开的实质段落。',a:'相关性'})}
+  else if(density>8){RULES.push({s:'fail',n:'关键词密度过高（'+density+'%）',d:'超过8%视为堆砌，清风算法会降权。改用同义词、长尾词自然分布。',a:'清风算法'})}
+  else{RULES.push({s:'ok',n:'关键词密度合规（'+density+'%）',d:'处于健康区间（参考1%–8%，以自然为最高原则）。',a:'相关性'});score+=10}
+
+  if(kw){if(body.slice(0,120).indexOf(kw)!==-1){RULES.push({s:'ok',n:'首段覆盖关键词',d:'前100字内出现关键词，主题明确。',a:'相关性'});score+=8}
+    else{RULES.push({s:'warn',n:'首段未出现关键词',d:'建议在导语第一句自然带出核心关键词。',a:'相关性'})}}
+
+  if(bodyChars<300){RULES.push({s:'fail',n:'内容过短（'+bodyChars+'字）',d:'空短内容是飓风4.0与细雨算法重点打击对象。需补写实质内容。',a:'飓风·细雨'})}
+  else if(bodyChars<800){RULES.push({s:'warn',n:'篇幅偏短（'+bodyChars+'字）',d:'建议扩充至800字以上，补充数据、步骤、对比等增量信息（信息增益）。',a:'优质内容指南'})}
+  else{RULES.push({s:'ok',n:'篇幅达标（'+bodyChars+'字）',d:'具备承载完整信息的体量。',a:'优质内容指南'});score+=12}
+
+  var h1=(body.match(/^#\s/gm)||[]).length;
+  var h2=(body.match(/^#{2,3}\s/gm)||[]).length;
+  var cnH=(body.match(/^[\u4e00-\u9fff]{1,6}、/gm)||[]).length
+        + (body.match(/^[\u4e00-\u9fff]{2,14}[：:]?\s*$/gm)||[]).length;
+  if(h1>1){RULES.push({s:'fail',n:'存在'+h1+'个一级标题',d:'一篇文章只应有一个H1。整篇粘回时标题框留空，让工具自动提取即可。',a:'结构化'})}
+  else if(h2>=2||cnH>=3){RULES.push({s:'ok',n:'结构清晰（检出'+(h2+cnH)+'个小标题）',d:'合理使用标题层级与列表有助于百度理解内容逻辑（段落级排名机制）。',a:'结构化'});score+=12}
+  else{RULES.push({s:'warn',n:'缺少结构化小标题',d:'建议用2–4个H2小标题（## 开头或「一、二、三…」序号式）拆分内容。',a:'结构化'})}
+
+  var contact=/1[3-9]\d{9}|(微信|vx|QQ|威信|公众号)[:：]?\s*\S{2,20}/.test(body);
+  if(contact){RULES.push({s:'fail',n:'正文穿插联系方式',d:'正文留电话/微信等受益信息是细雨算法明确打击的低质受益行为。',a:'细雨算法'})}
+  else{RULES.push({s:'ok',n:'无联系方式穿插',d:'正文未检出电话、微信、QQ等受益信息。',a:'细雨算法'});score+=10}
+
+  var paras=body.split(/\n+/).filter(function(p){return countChars(p)>0});
+  var maxP=paras.length?Math.max.apply(null,paras.map(countChars)):0;
+  if(maxP>400){RULES.push({s:'warn',n:'存在超长段落（'+maxP+'字）',d:'超长段落影响移动端阅读体验（冰桶算法5.0），建议每段≤200字。',a:'冰桶5.0'})}
+  else{RULES.push({s:'ok',n:'段落长度健康',d:'最长段落'+maxP+'字，移动端阅读友好。',a:'冰桶5.0'});score+=8}
+
+  var hasDate=/20\d{2}[-年\/]/.test(body);
+  if(hasDate){RULES.push({s:'ok',n:'包含时间因子',d:'2026年算法对时效性权重提升，近期更新内容优先展示。',a:'极光算法'});score+=10}
+  else{RULES.push({s:'warn',n:'缺少发布时间',d:'建议标注准确的发布/更新时间，极光算法将其作为排序参考因子。',a:'极光算法'})}
+
+  state={kw:kw,title:title,body:body,score:score,titleLen:titleLen,bodyChars:bodyChars,density:density,kwCount:kwCount};
+  render();
+}
+
+function render(){
+  $('reportCard').classList.remove('hidden');
+  $('btnFix').classList.remove('hidden');
+  $('scoreNum').textContent=state.score;
+  $('scoreFill').style.width=state.score+'%';
+  var c=state.score>=90?'优秀，可以直接发布':state.score>=70?'良好，按建议微调后发布':state.score>=50?'存在风险项，建议修复后再发布':'违规风险较高，必须整改';
+  $('scoreComment').textContent=c+'（'+RULES.filter(function(r){return r.s==='ok'}).length+'项通过 / '+RULES.filter(function(r){return r.s==='fail'}).length+'项违规 / '+RULES.filter(function(r){return r.s==='warn'}).length+'项建议）';
+  var chips={ok:'<span class="chip chip-ok">通过</span>',warn:'<span class="chip chip-warn">建议优化</span>',fail:'<span class="chip chip-fail">违规风险</span>'};
+  $('ruleList').innerHTML=RULES.map(function(r){
+    return '<div class="rule-item"><div>'+chips[r.s]+'</div><div style="flex:1"><div class="rule-name">'+r.n+'</div><div class="rule-desc">'+r.d+'</div></div><div class="rule-algo">'+r.a+'</div></div>';
+  }).join('');
+  $('reportCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function fix(){
+  if(!state.kw){alert('请先填写核心关键词');return}
+  var kw=state.kw;
+  var t=(state.title||kw).replace(/\s+/g,'');
+  var t1=t.indexOf(kw)===-1?kw+'：'+t:t;
+  while([...t1].length>30){t1=t1.slice(0,-1)}
+  var t2=('2026年最新'+kw+'全攻略').slice(0,30);
+  var plain=state.body.replace(/^#{1,6}\s*/gm,'').replace(/\n+/g,' ').trim();
+  var desc=plain.length>10?(plain.slice(0,90)+'……'+kw+'的关键方法与常见误区，一文讲清。'):(kw+'的核心要点、常见误区与实操步骤，一文讲清。');
+  if(desc.length>120)desc=desc.slice(0,120);
+
+  var hints=[],out='';
+  out+='# '+t1+'\n\n> '+desc+'\n\n';
+  var body=state.body.replace(/^#\s+/gm,'## ');
+  if(!/20\d{2}/.test(body)){out+='发布：'+new Date().toISOString().slice(0,10)+'\n\n';hints.push('补发布时间（极光算法）')}
+  if(body.slice(0,120).indexOf(kw)===-1){
+    out+='说到'+kw+'，很多人先想到找现成答案，但真正拉开差距的往往是几个容易被忽略的细节。下面把'+kw+'的关键点一次讲清楚。\n\n';
+    hints.push('首段植入关键词');
+  }
+  out+=body;
+  out=out.replace(/1[3-9]\d{9}|(微信|vx|QQ|威信|公众号)[:：]?\s*\S{2,20}/g,'');
+  hints.push('清除联系方式（细雨算法）');
+  if(state.density<1.5){
+    out+='\n\n## 关于'+kw+'的常见问题\n\n**Q：'+kw+'最容易踩的坑是什么？**\n\nA：最常见的问题是只看价格或热度，忽略与自身需求的匹配。建议先明确核心诉求，再对比2–3个方案。\n\n**Q：新手做'+kw+'应该从哪里开始？**\n\nA：先把基础流程跑通，再逐步优化细节，比一开始就追求完美更容易见效。\n';
+    hints.push('附录FAQ段落，自然提升关键词覆盖');
+  }
+  if(state.bodyChars<800){hints.push('注意：原文篇幅不足800字，建议补写实质内容后再发布')}
+
+  $('outputCard').classList.remove('hidden');
+  $('btnCopy').classList.remove('hidden');
+  $('outTitle').value=t1+'\n\n备选：'+t2;
+  $('outDesc').value=desc;
+  $('outBody').value=out;
+  $('fixHints').textContent='自动修复：'+hints.join('；')+'。整篇粘回正文框、标题框留空即可直接复测。';
+  $('outputCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+$('btnCheck').onclick=analyze;
+$('btnFix').onclick=fix;
+$('btnCopy').onclick=function(){
+  var txt=$('outTitle').value+'\n\n'+$('outDesc').value+'\n\n'+$('outBody').value;
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){alert('已复制到剪贴板')})}
+  else{$('outBody').select();document.execCommand('copy');alert('已复制')}
+};
+})();
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"4655f3c58dd6497fb7ddb85b68480db7","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
